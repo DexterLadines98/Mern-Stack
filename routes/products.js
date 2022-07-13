@@ -19,7 +19,7 @@ route.post("/new", verify, verifyAdmin, (req, res) => {
 		.catch((err) => res.send(err.message));
 });
 
-// *EXTRA* Add image for product (admin only)
+//Add image for product (admin only)
 route.post(
 	"/image/:productId",
 	verify,
@@ -29,6 +29,21 @@ route.post(
 		if (req.file === undefined) return res.send("you must select a file.");
 		return ProductController
 			.uploadImage(req.params.productId, req.file)
+			.then((result) => res.send(result))
+			.catch((err) => res.send(err.message));
+	}
+);
+
+// *EXTRA* Add a category (admin only)
+route.post(
+	"/:productId/category/:categoryId/add",
+	verify,
+	verifyAdmin,
+	(req, res) => {
+		let productId = req.params.productId;
+		let categoryId = req.params.categoryId;
+		ProductController
+			.addCategory(productId, categoryId)
 			.then((result) => res.send(result))
 			.catch((err) => res.send(err.message));
 	}
@@ -50,7 +65,31 @@ route.get("/:productId/", (req, res) => {
 		.catch((err) => res.send(err.message));
 });
 
-// *EXTRA* Add a category (admin only)
+//Retrieve any single product (admin only)
+route.get("/admin/:productId", verify, verifyAdmin, (req, res) => {
+	ProductController
+		.getAnyProduct(req.params.productId)
+		.then((result) => res.send(result))
+		.catch((err) => res.send(err.message));
+});
+
+//Retrieve all products (admin only)
+route.get("/", verify, verifyAdmin, (req, res) => {
+	ProductController
+		.getAllProducts()
+		.then((result) => res.send(result))
+		.catch((err) => res.send(err.message));
+});
+
+//Add custom order option (admin only)
+route.post("/option/:productId", verify, verifyAdmin, (req, res) => {
+	ProductController
+		.addOption(req.params.productId, req.body)
+		.then((result) => res.send(result))
+		.catch((err) => res.send(err.message));
+});
+
+//Add a category (admin only)
 route.post(
 	"/:productId/category/:categoryId/add",
 	verify,
@@ -73,24 +112,41 @@ route.put("/:productId", verify, verifyAdmin, (req, res) => {
 		.catch((err) => res.send(err.message));
 });
 
-//GET ALL ACTIVE PRODUCTS
-//route.get("/getActiveProducts", ProductController.getActiveProducts);
+// Archive Product (Admin only)
+route.put("/archive/:productId", verify, verifyAdmin, (req, res) => {
+	ProductController
+		.archiveProduct(req.params.productId)
+		.then((updatedProduct) => res.send(updatedProduct))
+		.catch((err) => res.send(err.message));
+});
+
+//Unarchive Product (Admin only)
+route.put("/unarchive/:productId", verify, verifyAdmin, (req, res) => {
+	ProductController
+		.unarchiveProduct(req.params.productId)
+		.then((updatedProduct) => res.send(updatedProduct))
+		.catch((err) => res.send(err.message));
+});
 
 
-//[SECTION] Routes- GET
-// Get Single Product
-//route.get("/getSingleProduct/:id", ProductController.getSingleProduct);
+// Delete an option (admin only)
+route.delete("/option/:productId", verify, verifyAdmin, (req, res) => {
+	ProductController
+		.deleteOption(req.params.productId, req.body)
+		.then((result) => res.send(result))
+		.catch((err) => res.send(err.message));
+});
 
-
-//[SECTION] Routes- PUT
-// Update Product Information - Admin
-route.put('/:productId', verify, verifyAdmin, (req, res) => {
-ProductController.updateProduct(req.params.productId, req.body).then(result => res.send(result))
-})
-
-// Archive Product-Admin
-route.put('/:productId/archive', verify, verifyAdmin, (req, res) => {
-    ProductController.archiveProduct(req.params.productId).then(result => res.send(result));
-})
-
+//Delete a category (admin only)
+route.delete(
+	"/:productId/category/:categoryId/delete",
+	verify,
+	verifyAdmin,
+	(req, res) => {
+		ProductController
+			.deleteCategory(req.params.productId, req.params.categoryId)
+			.then((result) => res.send(result))
+			.catch((err) => res.send(err.message));
+	}
+);
 module.exports = route;

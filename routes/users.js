@@ -26,7 +26,7 @@ route.post("/login", (req, res) => {
 		.catch((err) => res.send(err.message));
 });
 
-// GET the user's details
+// Retrieve authenticated user profile
 route.get("/profile", verify, (req, res) => {
 	UserController
 		.getProfile(req.user.id)
@@ -42,14 +42,22 @@ route.put("/password", verify, (req, res) => {
 		.catch((err) => res.send(err.message));
 });
 
-//Add to Cart
-route.post("/addToCart", verify, (req, res) => {
-    let productInfo = req.body;
-    UserController.addToCart(req.user.id, productInfo).then((result) => res.send(result))
-        .catch((err) => res.send(err));
+//Add to cart (authed)
+route.post("/cart/add/", verify, (req, res) => {
+	let productInfo = req.body;
+	UserController
+		.addToCart(req.user.id, productInfo, req.user.isAdmin)
+		.then((result) => res.send(result))
+		.catch((err) => res.send(err));
 });
 
-
+//Clear cart
+route.delete("/cart/clear", verify, (req, res) => {
+	UserController
+		.clearCart(req.user.id)
+		.then((result) => res.send(result))
+		.catch((err) => res.send(err.message));
+});
 
 //Set user as admin (Admin only)
 route.put("/:userId/admin", verify, verifyAdmin, (req, res) => {
@@ -60,13 +68,15 @@ route.put("/:userId/admin", verify, verifyAdmin, (req, res) => {
 		.catch((err) => res.send(err.message));
 });
 
-
 //Retrieve user orders
-route.get("/getUserOrders", verify, (req, res) => {
-    let userId = req.user.id;
-    UserController.getUserOrders(userId).then((result) => res.send(result))
-        .catch((err) => res.send(err.message));
+route.get("/orders", verify, (req, res) => {
+	let userId = req.user.id;
+	UserController
+		.getUserOrders(userId)
+		.then((result) => res.send(result))
+		.catch((err) => res.send(err.message));
 });
+
 
 // Retrieve all users (admin only)
 route.get("/all", verify, verifyAdmin, (req, res) => {
@@ -76,4 +86,47 @@ route.get("/all", verify, verifyAdmin, (req, res) => {
 		.catch((err) => res.send(err.message));
 });
 
+//Retrieve specific user order
+route.get("/order/:orderId", verify, (req, res) => {
+	UserController
+		.getUserOrder(req.user.id, req.params.orderId)
+		.then((result) => res.send(result))
+		.catch((err) => res.send(err.message));
+});
+
+// *EXTRA* Increase product quantity
+route.put(
+	"/cart/increase/quantity/:productId/:uniqueId",
+	verify,
+	(req, res) => {
+		UserController
+			.increaseQuantity(req.user.id, req.params.productId, req.params.uniqueId)
+			.then((result) => res.send(result))
+			.catch((err) => res.send(err.message));
+	}
+);
+
+// *EXTRA* Decrease product quantity
+route.put(
+	"/cart/decrease/quantity/:productId/:uniqueId",
+	verify,
+	(req, res) => {
+		UserController
+			.decreaseQuantity(req.user.id, req.params.productId, req.params.uniqueId)
+			.then((result) => res.send(result))
+			.catch((err) => res.send(err.message));
+	}
+);
+
+//Delete product from cart
+route.delete(
+	"/cart/delete/product/:productId/:uniqueId",
+	verify,
+	(req, res) => {
+		UserController
+			.deleteProduct(req.user.id, req.params.productId, req.params.uniqueId)
+			.then((result) => res.send(result))
+			.catch((err) => res.send(err.message));
+	}
+);
 module.exports = route;

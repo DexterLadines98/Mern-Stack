@@ -1,5 +1,5 @@
 const Product = require("../models/Product");
-//const Category = require("../models/Category");
+const Category = require("../models/Category");
 //const { options } = require("../routes/products");
 
 // Create Product (Admin only)
@@ -192,7 +192,7 @@ module.exports.deleteOption = (productId, optionInfo) => {
 		.catch((err) => err.message);
 };
 
-// *EXTRA* Delete a category (admin only)
+// Delete a category (admin only)
 module.exports.deleteCategory = async (productId, categoryId) => {
 	return await Product.findByIdAndUpdate(productId, {
 		$pull: {
