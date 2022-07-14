@@ -14,7 +14,9 @@ const discountRoutes = require("./routes/discounts");
 const courierRoutes = require("./routes/couriers");
 
 const auth = require("./auth");
+const { response } = require('express');
 const { verify, verifyAdmin } = auth;
+const Product = require("./models/Product");
 //[SECTION] Environment Setup
 dotenv.config(); 
 let account = process.env.CREDENTIALS;
@@ -58,6 +60,17 @@ app.get('/', (req, res) => {
 });
 app.post('/pay', (req, res) => {
 	
+});
+app.get('/search/:key', async (req, res) => {
+	let data = await Product.find(
+		{
+			"$or": [
+				{name:{$regex:req.params.key}},
+				{description:{$regex:req.params.key}}
+			]
+		}
+	)
+	res.send(data);
 })
 app.listen(port, () => {
     console.log(`API is Hosted port ${port}`);

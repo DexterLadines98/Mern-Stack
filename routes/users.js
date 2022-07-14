@@ -1,7 +1,8 @@
 //[SECTION] Depedencies and Modules
 const exp = require('express'); 
 const UserController = require('../controllers/users');
-const auth = require('../auth')
+const userCtrl = require('../controllers/userCtrl');
+const auth = require('../auth');
 
 //[SECTION] Routing Component
 const route = exp.Router();
@@ -10,21 +11,29 @@ const { verify, verifyAdmin } = auth;
 //[SECTION] Routes
 
 //Create New User
-route.post('/register', (req, res) => {
-    let userData = req.body;
-    UserController
-    .register(userData)
-    .then((newUser) => res.send(newUser))
-	.catch((err) => res.send(err.message));
-});
+route.post('/register', userCtrl.register)
+
+route.post('/activation', userCtrl.activateEmail)
+
+route.post('/login', userCtrl.login)
+
+route.post('/refresh_token', userCtrl.getAccessToken)
+
+// route.post('/register', (req, res) => {
+//     let userData = req.body;
+//     UserController
+//     .register(userData)
+//     .then((newUser) => res.send(newUser))
+// 	.catch((err) => res.send(err.message));
+// });
 
 //Login
-route.post("/login", (req, res) => {
-	UserController
-		.userLogin(req.body)
-		.then((result) => res.send(result))
-		.catch((err) => res.send(err.message));
-});
+// route.post("/login", (req, res) => {
+// 	UserController
+// 		.userLogin(req.body)
+// 		.then((result) => res.send(result))
+// 		.catch((err) => res.send(err.message));
+// });
 
 // Retrieve authenticated user profile
 route.get("/profile", verify, (req, res) => {
